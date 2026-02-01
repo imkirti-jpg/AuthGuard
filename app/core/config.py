@@ -4,19 +4,20 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
 
-    DB_USERNAME=str
-    DB_PASSWORD=str
-    DB_HOSTNAME=str
-    DB_PORT=int
-    DB_NAME=str
+    DB_USERNAME: str
+    DB_PASSWORD: str
+    DB_HOSTNAME: str
+    DB_PORT: int
+    DB_NAME: str
 
-    DATABASE_URL=str
+    DATABASE_URL: str
 
-    SECRET_KEY=str
-    ALGORITHM=str
-    ACCESS_TOKEN_EXPIRE_MINUTES=int
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int
 
-    REDIS_URL=str
+    REDIS_URL: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
