@@ -12,7 +12,9 @@ from app.schemas.user import UserCreate, UserLogin, UserOut
 from app.db.session import get_db
 from sqlalchemy.ext.asyncio import AsyncSession 
 
-from app.core.refresh import create_refresh_token, revoke_refresh_token 
+from app.core.refresh import create_refresh_token, revoke_refresh_token
+from app.services.auth_service import authenticate_user
+from app.services.exceptions import AccountLocked, InvalidCredentials 
 
 router = APIRouter()
 
@@ -41,18 +43,26 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
 ):
-    email = form_data.username.lower()
-    password = form_data.password
 
-    result = await db.execute(select(User).where(User.email == email))
-    user = result.scalar_one_or_none()
-
-    if not user or not verify_password(password, user.hashed_password):
+    try:
+        user = await authenticate_user(
+            db,
+            form_data.username,
+            form_data.password,
+        )
+    except AccountLocked:
+        raise HTTPException(
+            status_code=status.HTTP_423_LOCKED,
+            detail="Account locked. Try again later.",
+        )
+    except InvalidCredentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
+            detail="Invalid email or password",
         )
 
+    assert user is not None
+    
     # Create Access Token
     access_token = create_access_token(subject=str(user.id))
 
