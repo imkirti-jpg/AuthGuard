@@ -10,6 +10,8 @@ from app.core.config import get_settings
 
 from app.models.user import User 
 from alembic import context
+from app.models.refresh_tokens import RefreshToken
+from app.models.role import Role
 
 from dotenv import load_dotenv
 load_dotenv()

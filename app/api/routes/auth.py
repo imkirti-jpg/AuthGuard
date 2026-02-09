@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 
-from app.models import user
+from app.models import user, user_roles
 from app.models.refresh_tokens import RefreshToken
+from app.models.role import Role
 from app.models.user import User
 from app.core.security import verify_password, create_access_token, hash_password
 from app.core.refresh import  create_refresh_token
@@ -16,7 +17,7 @@ from app.core.refresh import create_refresh_token, revoke_refresh_token
 from app.services.auth_service import authenticate_user
 from app.services.exceptions import AccountLocked, InvalidCredentials 
 
-router = APIRouter()
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserOut)
 async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
@@ -31,6 +32,24 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     user = User(email=email, hashed_password=hash_password(user_in.password))
 
     db.add(user)
+
+
+    default_role = await db.scalar(
+        select(Role).where(Role.name == "user")
+    )
+    if not default_role:
+        raise HTTPException(
+            status_code=500,
+            detail="Default role not configured",
+        )
+
+    await db.execute(
+        user_roles.insert().values(
+            user_id=user.id,
+            role_id=default_role.id,
+        )
+    )
+    
     await db.commit()
     await db.refresh(user)
 
@@ -62,7 +81,7 @@ async def login(
         )
 
     assert user is not None
-    
+        
     # Create Access Token
     access_token = create_access_token(subject=str(user.id))
 

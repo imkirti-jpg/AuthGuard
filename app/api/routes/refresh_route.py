@@ -12,7 +12,7 @@ from app.core.refresh import validate_and_rotate_refresh_token
 from app.core.security import create_access_token
 from app.schemas.refresh import RefreshRequest
 
-router = APIRouter()
+router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(data: RefreshRequest):
     try:

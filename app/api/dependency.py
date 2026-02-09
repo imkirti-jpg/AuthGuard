@@ -36,3 +36,26 @@ async def get_current_user(
         raise HTTPException(status_code=404, detail="User not found")
 
     return user
+
+
+
+# app/api/dependency.py
+from fastapi import Depends, HTTPException, status
+from app.models.user import User
+
+
+class RoleChecker:
+    def __init__(self, allowed_roles: list[str]):
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, user: User = Depends(get_current_user)):
+        # Extract role names from user.roles
+        user_roles = [role.name for role in user.roles]
+        
+        # Check if user has ANY of the allowed roles
+        if not any(role in self.allowed_roles for role in user_roles):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Operation not permitted"
+            )
+        return True
