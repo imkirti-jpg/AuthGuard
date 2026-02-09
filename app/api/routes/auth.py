@@ -17,6 +17,10 @@ from app.core.refresh import create_refresh_token, revoke_refresh_token
 from app.services.auth_service import authenticate_user
 from app.services.exceptions import AccountLocked, InvalidCredentials 
 
+
+from app.schemas.user import PasswordResetRequest, PasswordResetConfirm
+from app.core.pass_reset import create_reset_token, verify_reset_token, delete_reset_token
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserOut)
@@ -108,3 +112,62 @@ async def logout(data: RefreshRequest):
             detail="Token not found or already revoked"
         )
     return None
+
+@router.post("/forgot-password", status_code=status.HTTP_202_ACCEPTED)
+async def forgot_password(
+    data: PasswordResetRequest, 
+    db: AsyncSession = Depends(get_db)
+):
+    
+    result = await db.execute(select(User).where(User.email == data.email))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        return {"message": "If this email exists, a reset link has been sent."}
+
+    # Generate Token
+    token = await create_reset_token(user.email)
+
+    
+    #  we return it so you can test it.
+    print(f"DEBUG - Reset Token: {token}")
+    return {
+        "message": "Password reset link generated", 
+        "debug_token": token 
+    }
+
+@router.post("/reset-password")
+async def reset_password(
+    data: PasswordResetConfirm, 
+    db: AsyncSession = Depends(get_db)
+):
+    
+    
+    email = await verify_reset_token(data.token)
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Invalid or expired reset token"
+        )
+
+   
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    
+    user.hashed_password = hash_password(data.new_password)
+    
+    # unlock if locked
+    user.failed_login_attempts = 0
+    user.locked_until = None
+
+    db.add(user)
+    await db.commit()
+
+    
+    await delete_reset_token(data.token)
+
+    return {"message": "Password has been updated successfully"}

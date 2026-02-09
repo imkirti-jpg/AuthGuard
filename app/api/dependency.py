@@ -8,8 +8,12 @@ from app.core.config import get_settings
 from app.db.session import get_db
 from app.models.user import User
 
+from fastapi import Depends, HTTPException, status
+from app.models.user import User
+
+
 settings = get_settings()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 async def get_current_user(
@@ -39,9 +43,7 @@ async def get_current_user(
 
 
 
-# app/api/dependency.py
-from fastapi import Depends, HTTPException, status
-from app.models.user import User
+
 
 
 class RoleChecker:
