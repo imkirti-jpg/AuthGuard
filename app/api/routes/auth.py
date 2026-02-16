@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 
+from app.db.redis import redis_client
 from app.models import user, user_roles
 from app.models.refresh_tokens import RefreshToken
 from app.models.role import Role
