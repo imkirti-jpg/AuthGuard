@@ -235,27 +235,6 @@ alembic upgrade head
 python -c "from app.core.seed_roles import seed_roles; import asyncio; asyncio.run(seed_roles())"
 ```
 
-## Configuration
-
-### Environment Variables Reference
-
-| Variable | Type | Description | Example |
-|----------|------|-------------|---------|
-| `DB_USERNAME` | string | PostgreSQL user | `authuser` |
-| `DB_PASSWORD` | string | PostgreSQL password | `securepass123` |
-| `DB_HOSTNAME` | string | PostgreSQL host | `localhost` |
-| `DB_PORT` | integer | PostgreSQL port | `5432` |
-| `DB_NAME` | string | Database name | `authguard_db` |
-| `DATABASE_URL` | string | Full connection string | `postgresql+asyncpg://...` |
-| `SECRET_KEY` | string | JWT signing key (32+ chars) | `your-secret-key` |
-| `ALGORITHM` | string | JWT algorithm | `HS256` |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | integer | Access token TTL | `15` |
-| `REFRESH_TOKEN_EXPIRE_DAYS` | integer | Refresh token TTL | `7` |
-| `RESET_TOKEN_EXPIRE_MINUTES` | integer | Password reset token TTL | `30` |
-| `MAX_FAILED_LOGIN_ATTEMPTS` | integer | Login attempts before lock | `5` |
-| `LOCKOUT_MINUTES` | integer | Account lockout duration | `15` |
-| `REDIS_URL` | string | Redis connection URL | `redis://localhost:6379/0` |
-
 ## Running the Application
 
 ### Development Mode
