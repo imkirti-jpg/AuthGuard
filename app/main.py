@@ -1,8 +1,23 @@
 from fastapi import FastAPI
 
 from app.api.routes import admin, auth, users ,refresh_route
+from app.core.seed_roles import seed_roles
 
-app = FastAPI(title="AuthGuard",version="1.0.0")
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from app.db.session import async_session_maker
+from app.core.seed_roles import seed_roles
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup
+    async with async_session_maker() as session:
+        await seed_roles(session)
+
+    yield
+
+
+app = FastAPI(title="AuthGuard",version="1.0.0", lifespan=lifespan)
 
 
 app.include_router(auth.router)
