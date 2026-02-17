@@ -2,6 +2,9 @@
 
 A robust, production-ready authentication and authorization service built with **FastAPI**, **PostgreSQL**, and **Redis**. AuthGuard provides stateless JWT-based authentication, role-based access control (RBAC), refresh tokens, and advanced security features like account locking and password reset.
 
+## Demo
+https://authguard-lq07.onrender.com/docs
+
 ## Table of Contents
 
 - [Features](#features)
