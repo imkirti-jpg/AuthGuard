@@ -7,7 +7,6 @@ asyncpg==0.29.0
 redis==5.0.1
 pydantic==2.5.0
 pydantic-settings==2.1.0
-passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0
 email-validator==2.1.0
 python-dotenv==1.0.0
@@ -17,3 +16,4 @@ pytest==7.4.3
 pytest-asyncio==0.21.1
 httpx==0.25.2
 argon2-cffi
+passlib
